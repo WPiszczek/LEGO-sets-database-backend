@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  db:
+    container_name: legosets-db
+    image: postgres:14.1-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+      - ./lego-sets.csv:/docker-entrypoint-initdb.d/lego-sets.csv
+  api:
+    container_name: legosets-api
+    build:
+      context: ./
+      target: production
+    image: legosets-api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8000:8000
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+    volumes:
+      - ./:/src
+      - /src/node_modules
+volumes:
+  db:
+    driver: local
