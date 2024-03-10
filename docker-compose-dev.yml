@@ -18,10 +18,10 @@ services:
       - db:/var/lib/postgresql/data
       - ./dataset:/docker-entrypoint-initdb.d
   api:
-    container_name: legosets-api
+    container_name: legosets-api-dev
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: always
     depends_on:
       db:

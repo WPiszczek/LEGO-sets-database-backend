@@ -1,11 +1,14 @@
-FROM node:20-alpine as base
-WORKDIR /src
+FROM node:20-alpine as builder
+WORKDIR /app
 COPY package*.json ./
-EXPOSE 3000
-
-FROM base as production
-ENV NODE_ENV=production
 RUN npm ci
-COPY --chown=node:node . ./
-USER node
-CMD ["npm", "run", "dev"]
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine as server
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY --from=builder ./app/dist ./dist
+EXPOSE 8000
+CMD ["npm", "start"]
