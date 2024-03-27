@@ -11,6 +11,6 @@ CREATE TABLE lego_sets(
 );
 
 COPY lego_sets
-FROM '/docker-entrypoint-initdb.d/lego-sets.csv' 
+FROM '/tmp/dataset/lego-sets.csv' 
 DELIMITER ',' 
 CSV HEADER;
